@@ -20,26 +20,32 @@ add_action('wp_enqueue_scripts', 'lightbox2_enqueue');
 function lightbox2_img_attrs($content) {
   global $post;
 
-  $document = new \DOMDocument();
-  libxml_use_internal_errors(true);
-  $document->loadHTML(utf8_decode($content));
-  $images = $document->getElementsByTagName('img');
+  // Check if post/page has a Category of 'Blog'.
+  // Or if there is a Custom Field of 'lightbox' with a value of 'true'.
+  if (has_category('Blog', $post->ID) || get_post_meta($post->ID, 'lightbox', TRUE) == 'true') {
+    $document = new \DOMDocument();
+    libxml_use_internal_errors(true);
+    $document->loadHTML(utf8_decode($content));
+    $images = $document->getElementsByTagName('img');
 
-  foreach ($images as $image) {
-    $parent = $image->parentNode;
-    $caption = $image->nextSibling;
+    foreach ($images as $image) {
+      $parent = $image->parentNode;
+      $caption = $image->nextSibling;
 
-    $link = $document->createElement('a');
-    $link->setAttribute('class', 'lightbox-link');
-    $link->setAttribute('href', $image->getAttribute('src'));
-    $link->setAttribute('data-lightbox', 'post_'. $post->ID);
-    $link->setAttribute('data-title', $caption->textContent);
-    $link->appendChild($image);
+      $link = $document->createElement('a');
+      $link->setAttribute('class', 'lightbox-link');
+      $link->setAttribute('href', $image->getAttribute('src'));
+      $link->setAttribute('data-lightbox', 'post_'. $post->ID);
+      $link->setAttribute('data-title', $caption->textContent);
+      $link->appendChild($image);
 
-    $parent->appendChild($link);
-    $parent->appendChild($caption);
+      $parent->appendChild($link);
+      $parent->appendChild($caption);
+    }
+
+    return $document->saveHTML();
+  } else {
+    return $content;
   }
-
-  return $document->saveHTML();
 }
 add_filter('the_content', 'lightbox2_img_attrs');
