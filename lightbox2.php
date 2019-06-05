@@ -32,6 +32,11 @@ function lightbox2_img_attrs($content) {
       $parent = $image->parentNode;
       $caption = $image->nextSibling;
 
+      // Adjust the location of the figcaption element to account for Gallery images.
+      if (is_null($caption)) {
+        $caption = $parent->nextSibling;
+      }
+
       $link = $document->createElement('a');
       $link->setAttribute('class', 'lightbox-link');
       $link->setAttribute('href', $image->getAttribute('src'));
