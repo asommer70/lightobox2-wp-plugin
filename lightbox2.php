@@ -45,7 +45,9 @@ function lightbox2_img_attrs($content) {
       $link->appendChild($image);
 
       $parent->appendChild($link);
-      $parent->appendChild($caption);
+      if (!is_null($caption)) {
+        $parent->appendChild($caption);
+      }
     }
 
     return $document->saveHTML();
